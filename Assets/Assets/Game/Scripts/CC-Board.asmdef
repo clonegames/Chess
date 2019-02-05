@@ -1,0 +1,10 @@
+{
+    "name": "CC-Board",
+    "references": [
+        "CC-Utilities"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
