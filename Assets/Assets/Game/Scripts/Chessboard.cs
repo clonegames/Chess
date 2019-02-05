@@ -4,19 +4,31 @@ using UnityEngine;
 
 namespace Chess {
 
+    [RequireComponent(typeof(BoxCollider))]
     public class Chessboard : Utilities.Singleton<Chessboard> {
 
         [SerializeField]
         private int m_boardSize;
 
-        public List<BoardSquare> Board { get; private set; }
+
+        private List<BoardSquare> m_board;
+
+        private Vector2 m_bounds;
 
         private int temp_pivot;
 
         private void Awake() {
-            Board = new List<BoardSquare>();
-            for (int i = 0; i < m_boardSize * m_boardSize; i++) {
-                Board.Add(new BoardSquare(i));
+            
+            var collider = GetComponent<BoxCollider>();
+            m_bounds = new Vector2(collider.bounds.extents.x, collider.bounds.extents.z);
+            var offset = m_bounds - (m_bounds / m_boardSize);
+            
+            m_board = new List<BoardSquare>();
+            for (int i = 0; i < m_boardSize; i++) {
+                for (int j = 0; j < m_boardSize; j++) {
+                    var position = new Vector2(m_bounds.x * ((float)j / m_boardSize) * 2, m_bounds.y * ((float)i / m_boardSize) * 2) - offset;
+                    m_board.Add(new BoardSquare(j + (i * m_boardSize), position));   
+                }                        
             }
         }
 
@@ -35,6 +47,12 @@ namespace Chess {
                     print("Não tinha nenhum bloco na direção: " + randomDir);
                 }
             }
+        }
+
+        private void OnDrawGizmos() {
+            m_board.ForEach(square => {
+                Gizmos.DrawSphere(square.Position, 0.2f);
+            });
         }
 
         public BoardSquare GetNeighbourSquare(int pivot, BoardSquare.NeighbourDirection direction) {
@@ -91,11 +109,10 @@ namespace Chess {
                     squareId = (pivot - m_boardSize) - 1;
                     break;
             }
-            return Board[squareId];
+            return m_board[squareId];
         }
     }
 
-    [System.Serializable]
     public class BoardSquare {
 
         public enum NeighbourDirection {
@@ -111,10 +128,13 @@ namespace Chess {
 
         public int Id { get; private set; }
 
+        public Vector3 Position { get; set; }
+
         public IPiece Piece;
 
-        public BoardSquare(int id) {
+        public BoardSquare(int id, Vector2 position) {
             Id = id;
+            Position = new Vector3(position.x, 0, position.y);
         }
 
         public BoardSquare QueryNeighbour(NeighbourDirection direction) {

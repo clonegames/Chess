@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -188,7 +188,6 @@ GameObject:
   - component: {fileID: 282840814}
   - component: {fileID: 282840813}
   - component: {fileID: 282840811}
-  - component: {fileID: 282840812}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -203,18 +202,6 @@ AudioListener:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 282840810}
   m_Enabled: 1
---- !u!114 &282840812
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 282840810}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8a49e0eb3026d143b2be0cef171e499, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_boardSize: 8
 --- !u!20 &282840813
 Camera:
   m_ObjectHideFlags: 0
@@ -274,6 +261,7 @@ GameObject:
   - component: {fileID: 954887215}
   - component: {fileID: 954887214}
   - component: {fileID: 954887213}
+  - component: {fileID: 954887216}
   - component: {fileID: 954887212}
   m_Layer: 0
   m_Name: Board
@@ -282,8 +270,8 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!64 &954887212
-MeshCollider:
+--- !u!65 &954887212
+BoxCollider:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
@@ -291,11 +279,9 @@ MeshCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Convex: 0
-  m_CookingOptions: 14
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  serializedVersion: 2
+  m_Size: {x: 10, y: 2.220446e-16, z: 10}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &954887213
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -351,3 +337,15 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &954887216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 954887211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8a49e0eb3026d143b2be0cef171e499, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_boardSize: 8
