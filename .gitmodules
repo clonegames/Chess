@@ -1,0 +1,3 @@
+[submodule "Assets/External/EzEditor"]
+	path = Assets/External/EzEditor
+	url = https://github.com/FluidPlay/EzEditor.git

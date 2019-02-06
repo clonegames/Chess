@@ -1,7 +1,9 @@
 {
     "name": "CC-GameEditor",
     "references": [
-        "CC-Board"
+        "CC-Board",
+        "CC-EzEditor",
+        "CC-Utilities"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

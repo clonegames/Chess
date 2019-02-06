@@ -11,17 +11,21 @@ namespace Chess {
         public event Action OnSquareSelected;
 
         #region Fields
-        [SerializeField]
-        private GameObject m_selector;
+        public GameObject SelectorPrefab;
 
-        [SerializeField]
-        private int m_boardSize;
+        public GameObject Piece;
+
+        public int BoardSize;
 
         private List<Square> m_board;
 
         private Vector2 m_bounds;
 
         private int m_selectedId;
+
+        private int[] m_currectTargeted;
+
+        private Piece m_selectedPiece;
         #endregion
 
         #region TemporaryFields
@@ -34,40 +38,39 @@ namespace Chess {
             PrepareBoard();
         }
 
-        private void OnValidate() {
-            if (m_boardSize % 2 != 0) {
-                m_boardSize++;
-            }
-        }
-
         [ContextMenu("Prepare Board")]
-        private void PrepareBoard() {
+        public void PrepareBoard() {
 
-            if (m_boardSize % 2 != 0) {
-                m_boardSize++;
+            if (BoardSize % 2 != 0) {
+                BoardSize++;
             }
 
             var collider = GetComponent<BoxCollider>();
             m_bounds = new Vector2(collider.bounds.extents.x, collider.bounds.extents.z);
-            var offset = m_bounds - (m_bounds / m_boardSize);
+            var offset = m_bounds - (m_bounds / BoardSize);
 
             Clear();
 
             m_board = new List<Square>();
-            for (int i = 0; i < m_boardSize; i++) {
-                for (int j = 0; j < m_boardSize; j++) {
-                    var position = new Vector2(m_bounds.x * ((float)j / m_boardSize) * 2, m_bounds.y * ((float)i / m_boardSize) * 2) - offset;
-                    m_board.Add(new Square(j + (i * m_boardSize), position, 10f / m_boardSize, m_selector, transform));
+            for (int i = 0; i < BoardSize; i++) {
+                for (int j = 0; j < BoardSize; j++) {
+                    var position = new Vector2(m_bounds.x * ((float)j / BoardSize) * 2, m_bounds.y * ((float)i / BoardSize) * 2) - offset;
+                    m_board.Add(new Square(j + (i * BoardSize), position, 10f / BoardSize, SelectorPrefab, transform));
                 }
             }
-            m_board[m_selectedId].Selected = true;
+            
+            for (int i = 0; i < 16; i++) {
+                var rand = UnityEngine.Random.Range(0, BoardSize * BoardSize - 1);
+                var piece = Instantiate(Piece, transform).GetComponent<Piece>();
+                piece.CurrentSquare = m_board[rand];
+            }
 
             var material = GetComponent<Renderer>().sharedMaterial;
-            material.SetInt("_GridSize", m_boardSize / 2);
+            material.SetInt("_GridSize", BoardSize / 2);
         }
 
         [ContextMenu("Clear")]
-        private void Clear() {
+        public void Clear() {
 
             var childs = transform.childCount;
 
@@ -100,10 +103,33 @@ namespace Chess {
                     closest = square;
                 }
             });
+
             if (closest != null) {
+                if (m_selectedPiece != null) {
+                    if (closest.Targeted) {
+                        m_selectedPiece.CurrentSquare = closest;                                         
+                    }
+                    for (int i = 0; i < m_currectTargeted.Length; i++) {
+                        m_board[m_currectTargeted[i]].Selected = false;
+                        m_board[m_currectTargeted[i]].Targeted = false;
+                    }
+                    m_selectedPiece = null;
+                    m_currectTargeted = null;
+                }
+
                 m_board[m_selectedId].Selected = false;
                 closest.Selected = true;
                 m_selectedId = closest.Id;
+                if (m_selectedPiece == null) {
+                    if (closest.Piece != null) {
+                        m_selectedPiece = closest.Piece;
+                        m_currectTargeted = m_selectedPiece.GetTargetSquaresIds();
+                        for (int i = 0; i < m_currectTargeted.Length; i++) {
+                            m_board[m_currectTargeted[i]].Selected = true;
+                            m_board[m_currectTargeted[i]].Targeted = true;
+                        }
+                    }
+                }
             }
             if (OnSquareSelected != null) {
                 OnSquareSelected();
@@ -116,52 +142,52 @@ namespace Chess {
 
             switch (direction) {
                 case Square.NeighbourDirection.Up:
-                    if (id > m_boardSize * m_boardSize - (m_boardSize + 1)) {
+                    if (id > BoardSize * BoardSize - (BoardSize + 1)) {
                         return null;
                     }
-                    squareId = id + m_boardSize;
+                    squareId = id + BoardSize;
                     break;
                 case Square.NeighbourDirection.UpperRight:
-                    if (id > m_boardSize * m_boardSize - (m_boardSize + 1) || id % m_boardSize == m_boardSize - 1) {
+                    if (id > BoardSize * BoardSize - (BoardSize + 1) || id % BoardSize == BoardSize - 1) {
                         return null;
                     }
-                    squareId = (id + m_boardSize) + 1;
+                    squareId = (id + BoardSize) + 1;
                     break;
                 case Square.NeighbourDirection.Right:
-                    if (id % m_boardSize == m_boardSize - 1) {
+                    if (id % BoardSize == BoardSize - 1) {
                         return null;
                     }
                     squareId = id + 1;
                     break;
                 case Square.NeighbourDirection.DownRight:
-                    if (id < m_boardSize || id % m_boardSize == m_boardSize - 1) {
+                    if (id < BoardSize || id % BoardSize == BoardSize - 1) {
                         return null;
                     }
-                    squareId = id - m_boardSize + 1;
+                    squareId = id - BoardSize + 1;
                     break;
                 case Square.NeighbourDirection.Down:
-                    if (id < m_boardSize) {
+                    if (id < BoardSize) {
                         return null;
                     }
-                    squareId = id - m_boardSize;
+                    squareId = id - BoardSize;
                     break;
                 case Square.NeighbourDirection.DownLeft:
-                    if (id < m_boardSize || id % m_boardSize == 0) {
+                    if (id < BoardSize || id % BoardSize == 0) {
                         return null;
                     }
-                    squareId = id - m_boardSize - 1;
+                    squareId = id - BoardSize - 1;
                     break;
                 case Square.NeighbourDirection.Left:
-                    if (id % m_boardSize == 0) {
+                    if (id % BoardSize == 0) {
                         return null;
                     }
                     squareId = id - 1;
                     break;
                 case Square.NeighbourDirection.UpperLeft:
-                    if (id > m_boardSize * m_boardSize - (m_boardSize + 1) || id % m_boardSize == 0) {
+                    if (id > BoardSize * BoardSize - (BoardSize + 1) || id % BoardSize == 0) {
                         return null;
                     }
-                    squareId = (id + m_boardSize) - 1;
+                    squareId = (id + BoardSize) - 1;
                     break;
             }
             if (squareId == -1) {
@@ -225,9 +251,26 @@ namespace Chess {
             }
         }
 
+        public bool Targeted {
+            get {
+                return m_targeted;
+            }
+            set {
+                m_targeted = value;
+                if (m_targeted) {
+                    m_selectedIndicator.GetComponent<Renderer>().material.color = Color.red;
+                }
+                else {
+                    m_selectedIndicator.GetComponent<Renderer>().material.color = Color.white;
+                }
+            }
+        }
+
+        private bool m_targeted;
+
         private GameObject m_selectedIndicator;
 
-        public IPiece Piece;
+        public Piece Piece;
 
         public Square(int id, Vector2 position, float size, GameObject selected, Transform board) {
             Id = id;
