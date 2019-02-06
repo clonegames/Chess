@@ -21,7 +21,7 @@ namespace Chess {
 
         private Vector2 m_bounds;
 
-        private int m_selectedId;
+        private int m_selectedId = -1;
 
         private int[] m_currectTargeted;
 
@@ -60,9 +60,10 @@ namespace Chess {
             }
             
             for (int i = 0; i < 16; i++) {
-                var rand = UnityEngine.Random.Range(0, BoardSize * BoardSize - 1);
+                var rand = UnityEngine.Random.Range(0, BoardSize * BoardSize);
                 var piece = Instantiate(Piece, transform).GetComponent<Piece>();
                 piece.CurrentSquare = m_board[rand];
+                piece.transform.localScale = (Vector3.one * 4) / BoardSize;
             }
 
             var material = GetComponent<Renderer>().sharedMaterial;
@@ -94,6 +95,8 @@ namespace Chess {
 #region Public
 
         public void SelectSquareAt(Vector3 position) {
+            
+            //Test closest square
             Square closest = null;
             float minimumDist = float.PositiveInfinity;
             m_board.ForEach(square => {
@@ -103,38 +106,76 @@ namespace Chess {
                     closest = square;
                 }
             });
+            //--------------------
 
             if (closest != null) {
+                //in case the player is already with a piece selected
                 if (m_selectedPiece != null) {
+
+                    //in case the closest square is targeted by the selected piece
                     if (closest.Targeted) {
-                        m_selectedPiece.CurrentSquare = closest;                                         
+                        //move to the square
+
+                        if (closest.Piece) {
+                            Destroy(closest.Piece.gameObject);
+                            closest.Piece = null;
+                        }
+                        
+                        m_selectedPiece.CurrentSquare = closest;                        
+                        
                     }
-                    for (int i = 0; i < m_currectTargeted.Length; i++) {
-                        m_board[m_currectTargeted[i]].Selected = false;
-                        m_board[m_currectTargeted[i]].Targeted = false;
+
+                    //either way, unselect and untarget all squares 
+                    foreach (var t in m_currectTargeted) {
+                        m_board[t].Selected = false;
+                        m_board[t].Targeted = false;
                     }
+
+                    //and deselect the piece
                     m_selectedPiece = null;
                     m_currectTargeted = null;
+                    SetSelectedSquare(null);
+                    return;
                 }
+                
+                //in case the selected square has a piece
+                if (closest.Piece != null) {
+                    //unselects last piece and selects the new one
+                    SetSelectedSquare(closest);
+                    m_selectedPiece = closest.Piece;
+                    m_currectTargeted = m_selectedPiece.GetTargetSquaresIds();
+                    if (m_currectTargeted != null) {
+                        foreach (var t in m_currectTargeted) {
+                            m_board[t].Selected = true;
+                            m_board[t].Targeted = true;
+                        }                        
+                    }
+                    else {
+                        m_selectedPiece = null;
+                        SetSelectedSquare(null);
+                    }
 
-                m_board[m_selectedId].Selected = false;
-                closest.Selected = true;
-                m_selectedId = closest.Id;
-                if (m_selectedPiece == null) {
-                    if (closest.Piece != null) {
-                        m_selectedPiece = closest.Piece;
-                        m_currectTargeted = m_selectedPiece.GetTargetSquaresIds();
-                        for (int i = 0; i < m_currectTargeted.Length; i++) {
-                            m_board[m_currectTargeted[i]].Selected = true;
-                            m_board[m_currectTargeted[i]].Targeted = true;
-                        }
+                    if (OnSquareSelected != null) {
+                        OnSquareSelected();
                     }
                 }
-            }
-            if (OnSquareSelected != null) {
-                OnSquareSelected();
-            }
+            }          
         }
+
+        private void SetSelectedSquare(Square square) {
+
+            if (m_selectedId != -1) {
+                m_board[m_selectedId].Selected = false;
+            }                
+            
+            if (square == null) {             
+                m_selectedId = -1;
+                return;
+            }
+            square.Selected = true;
+            m_selectedId = square.Id;
+        }
+        
 
         public Square GetNeighbourSquare(int id, Square.NeighbourDirection direction) {
 

@@ -2,7 +2,7 @@
     "name": "CC-GameEditor",
     "references": [
         "CC-Board",
-        "CC-EzEditor",
+        "CC-External",
         "CC-Utilities"
     ],
     "optionalUnityReferences": [],
