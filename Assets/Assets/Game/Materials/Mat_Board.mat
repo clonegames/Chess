@@ -6,7 +6,7 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Mat_Board
+  m_Name: mat_Board
   m_Shader: {fileID: 4800000, guid: 6339d5bac9c90074db41764bc6a5fadf, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -20,6 +20,10 @@ Material:
     m_TexEnvs:
     - _BumpMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpTex:
+        m_Texture: {fileID: 2800000, guid: 6d73a8d7fc8993a4387aac4540718802, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -39,7 +43,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: a814ac92010dc664cac12b0763ba867c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -60,7 +64,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.37
+    - _Glossiness: 0.41
     - _GlossyReflections: 1
     - _GridSize: 4
     - _Metallic: 0
@@ -73,5 +77,5 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.3207547, g: 0.17726867, b: 0.055980776, a: 1}
+    - _Color: {r: 0.8679245, g: 0.7911411, b: 0.76557493, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

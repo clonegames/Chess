@@ -6,7 +6,7 @@ namespace Chess {
     public interface IPiece {
 
         void Select();
-        List<BoardSquare> LegalSquares();
+        List<Square> LegalSquares();
         void Move();
     }
 }

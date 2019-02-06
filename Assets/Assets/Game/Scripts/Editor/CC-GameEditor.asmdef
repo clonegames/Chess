@@ -1,0 +1,10 @@
+{
+    "name": "CC-GameEditor",
+    "references": [
+        "CC-Board"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
