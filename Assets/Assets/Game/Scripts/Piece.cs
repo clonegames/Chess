@@ -9,6 +9,9 @@ namespace Chess {
 
         private Square m_currentSquare;
 
+        public bool WhiteTeam;
+
+
         public Square CurrentSquare {
             get {
                 return m_currentSquare;
@@ -24,14 +27,24 @@ namespace Chess {
 
 
         public int[] GetTargetSquaresIds() {
-            int[] targetIds = new int[1];
+            int[] targetIds = new int[2];
 
             var target = m_currentSquare.QueryNeighbour(MoveDirection);
+            Square target2 = null;
             if (target != null) {
+                target2 = target.QueryNeighbour(MoveDirection);
                 targetIds[0] = target.Id;
-                return targetIds;
             }
-            return null;
+            else {
+                targetIds[0] = -1;
+            }
+            if (target2 != null) {
+                targetIds[1] = target2.Id;
+            }
+            else {
+                targetIds[1] = -1;
+            }
+            return targetIds;
         }
     }
 }

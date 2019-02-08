@@ -13,7 +13,7 @@ namespace Chess {
         #region Fields
         public GameObject SelectorPrefab;
 
-        public GameObject Piece;
+        public GameObject WhitePiece, BlackPiece;
 
         public int BoardSize;
 
@@ -23,9 +23,13 @@ namespace Chess {
 
         private int m_selectedId = -1;
 
+        private int m_turnNumber;
+
         private int[] m_currectTargeted;
 
         private Piece m_selectedPiece;
+
+        private List<Piece> m_whiteTeam = new List<Piece>(), m_blackTeam = new List<Piece>();
         #endregion
 
         #region TemporaryFields
@@ -58,13 +62,18 @@ namespace Chess {
                     m_board.Add(new Square(j + (i * BoardSize), position, 10f / BoardSize, SelectorPrefab, transform));
                 }
             }
-            
-            for (int i = 0; i < 16; i++) {
-                var rand = UnityEngine.Random.Range(0, BoardSize * BoardSize);
-                var piece = Instantiate(Piece, transform).GetComponent<Piece>();
-                piece.CurrentSquare = m_board[rand];
-                piece.transform.localScale = (Vector3.one * 4) / BoardSize;
+
+            for (int i = 0; i < BoardSize * 2; i++) {
+                m_whiteTeam.Add(Instantiate(WhitePiece, transform).GetComponent<Piece>());
+                m_whiteTeam[i].CurrentSquare = m_board[i];
+                m_whiteTeam[i].transform.localScale /= BoardSize / 8;
+
+                m_blackTeam.Add(Instantiate(BlackPiece, transform).GetComponent<Piece>());
+                m_blackTeam[i].CurrentSquare = m_board[(BoardSize * BoardSize - 1) - i];
+                m_blackTeam[i].transform.localScale /= BoardSize / 8;
             }
+            
+            
 
             var material = GetComponent<Renderer>().sharedMaterial;
             material.SetInt("_GridSize", BoardSize / 2);
@@ -88,6 +97,9 @@ namespace Chess {
 
             if (m_board != null)
                 m_board.Clear();
+
+            m_whiteTeam.Clear();
+            m_blackTeam.Clear();
         }
 
 #endregion
@@ -117,16 +129,22 @@ namespace Chess {
                         //move to the square
 
                         if (closest.Piece) {
-                            Destroy(closest.Piece.gameObject);
-                            closest.Piece = null;
+                            if (closest.Piece.WhiteTeam != m_selectedPiece.WhiteTeam) {
+                                Destroy(closest.Piece.gameObject);
+                                closest.Piece = null;
+                                m_selectedPiece.CurrentSquare = closest;
+                            }
                         }
-                        
-                        m_selectedPiece.CurrentSquare = closest;                        
-                        
+                        else {
+                            m_selectedPiece.CurrentSquare = closest;
+                        }                       
+
                     }
 
                     //either way, unselect and untarget all squares 
                     foreach (var t in m_currectTargeted) {
+                        if (t == -1)
+                            continue;
                         m_board[t].Selected = false;
                         m_board[t].Targeted = false;
                     }
@@ -146,6 +164,8 @@ namespace Chess {
                     m_currectTargeted = m_selectedPiece.GetTargetSquaresIds();
                     if (m_currectTargeted != null) {
                         foreach (var t in m_currectTargeted) {
+                            if (t == -1)
+                                continue;
                             m_board[t].Selected = true;
                             m_board[t].Targeted = true;
                         }                        

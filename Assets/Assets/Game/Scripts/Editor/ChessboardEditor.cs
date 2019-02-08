@@ -31,12 +31,18 @@ namespace Chess {
         private void DrawFields() {
             m_target.SelectorPrefab = gui.EzGameObjectField("Selector Prefab", m_target.SelectorPrefab, 0f);
 
-            m_target.Piece = gui.EzGameObjectField("Piece Prefab", m_target.Piece, 0f);
+            m_target.WhitePiece = gui.EzGameObjectField("White Piece", m_target.WhitePiece, 0f);
+
+
+            m_target.BlackPiece = gui.EzGameObjectField("Black Piece", m_target.BlackPiece, 0f);
 
             m_target.BoardSize = gui.EzIntField("Board Size", m_target.BoardSize);
             if (m_target.BoardSize % 2 != 0) {
                 m_target.BoardSize++;
             }
+
+            gui.EzHeader("Editor only", 14);
+            m_target.DrawGizmos = gui.EzToggle("Draw Gizmos", m_target.DrawGizmos);
         }
     }
 }
