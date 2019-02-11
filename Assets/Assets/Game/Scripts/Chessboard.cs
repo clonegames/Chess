@@ -73,7 +73,7 @@ namespace Chess {
                 m_blackTeam[i].transform.localScale /= BoardSize / 8;
             }
             
-            
+            NextTurn();
 
             var material = GetComponent<Renderer>().sharedMaterial;
             material.SetInt("_GridSize", BoardSize / 2);
@@ -127,18 +127,18 @@ namespace Chess {
                     //in case the closest square is targeted by the selected piece
                     if (closest.Targeted) {
                         //move to the square
-
                         if (closest.Piece) {
                             if (closest.Piece.WhiteTeam != m_selectedPiece.WhiteTeam) {
                                 Destroy(closest.Piece.gameObject);
                                 closest.Piece = null;
                                 m_selectedPiece.CurrentSquare = closest;
+                                NextTurn();
                             }
                         }
                         else {
                             m_selectedPiece.CurrentSquare = closest;
-                        }                       
-
+                            NextTurn();
+                        }                                            
                     }
 
                     //either way, unselect and untarget all squares 
@@ -158,25 +158,29 @@ namespace Chess {
                 
                 //in case the selected square has a piece
                 if (closest.Piece != null) {
-                    //unselects last piece and selects the new one
-                    SetSelectedSquare(closest);
-                    m_selectedPiece = closest.Piece;
-                    m_currectTargeted = m_selectedPiece.GetTargetSquaresIds();
-                    if (m_currectTargeted != null) {
-                        foreach (var t in m_currectTargeted) {
-                            if (t == -1)
-                                continue;
-                            m_board[t].Selected = true;
-                            m_board[t].Targeted = true;
-                        }                        
-                    }
-                    else {
-                        m_selectedPiece = null;
-                        SetSelectedSquare(null);
-                    }
 
-                    if (OnSquareSelected != null) {
-                        OnSquareSelected();
+                    if (closest.Piece.WhiteTeam && m_turnNumber % 2 == 1 ||
+                        !closest.Piece.WhiteTeam && m_turnNumber % 2 == 0) {
+                        //unselects last piece and selects the new one
+                        SetSelectedSquare(closest);
+                        m_selectedPiece = closest.Piece;
+                        m_currectTargeted = m_selectedPiece.TargetedSquares;
+                        if (m_currectTargeted != null) {
+                            foreach (var t in m_currectTargeted) {
+                                if (t == -1)
+                                    continue;
+                                m_board[t].Selected = true;
+                                m_board[t].Targeted = true;
+                            }
+                        }
+                        else {
+                            m_selectedPiece = null;
+                            SetSelectedSquare(null);
+                        }
+
+                        if (OnSquareSelected != null) {
+                            OnSquareSelected();
+                        }
                     }
                 }
             }          
@@ -194,6 +198,27 @@ namespace Chess {
             }
             square.Selected = true;
             m_selectedId = square.Id;
+        }
+
+        private void NextTurn() {
+            m_turnNumber++;
+
+            Action<Piece> debugHighlight = p => {
+                p.UpdateTargetedSquares();
+                var targets = p.TargetedSquares;
+                for (int i = 0; i < targets.Length; i++) {
+                    if (targets[i] != -1)
+                        m_board[targets[i]].DebugTargeted = true;
+                }
+            };
+            if (m_turnNumber % 2 == 1) {
+                m_whiteTeam.ForEach(debugHighlight);
+                
+            }
+            else {
+                m_blackTeam.ForEach(debugHighlight);
+            }
+            print(m_turnNumber);            
         }
         
 
@@ -271,7 +296,7 @@ namespace Chess {
             }
 
             m_board.ForEach(square => {
-                if (square.Selected) {
+                if (square.DebugTargeted) {
                     Gizmos.color = Color.green;
                 }
                 else {
@@ -302,6 +327,8 @@ namespace Chess {
         public int Id { get; private set; }
 
         public Vector3 Position { get; set; }
+
+        public bool DebugTargeted;
 
         public bool Selected {
             get {

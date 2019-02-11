@@ -9,8 +9,13 @@ namespace Chess {
 
         private Square m_currentSquare;
 
-        public bool WhiteTeam;
+        public bool WhiteTeam;      
+        
+        public int[] TargetedSquares {
+            get { return m_targetedSquares; }
+        }
 
+        private int[] m_targetedSquares;
 
         public Square CurrentSquare {
             get {
@@ -26,25 +31,24 @@ namespace Chess {
         }
 
 
-        public int[] GetTargetSquaresIds() {
-            int[] targetIds = new int[2];
+        public void UpdateTargetedSquares() {
+            m_targetedSquares = new int[2];
 
             var target = m_currentSquare.QueryNeighbour(MoveDirection);
             Square target2 = null;
             if (target != null) {
                 target2 = target.QueryNeighbour(MoveDirection);
-                targetIds[0] = target.Id;
+                m_targetedSquares[0] = target.Id;
             }
             else {
-                targetIds[0] = -1;
+                m_targetedSquares[0] = -1;
             }
             if (target2 != null) {
-                targetIds[1] = target2.Id;
+                m_targetedSquares[1] = target2.Id;
             }
             else {
-                targetIds[1] = -1;
+                m_targetedSquares[1] = -1;
             }
-            return targetIds;
         }
     }
 }
